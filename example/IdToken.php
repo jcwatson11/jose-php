@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . '/../src/JOSE/JWT.php';
+
 // an example of OpenID Connect ID Token implementation
 
 class IdToken {

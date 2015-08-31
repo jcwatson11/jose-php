@@ -2,6 +2,8 @@
 
 use phpseclib\Crypt\RSA;
 
+require_once dirname(__FILE__) . '/JWT.php';
+
 class JOSE_JWS extends JOSE_JWT {
     function __construct($jwt) {
         $this->header = $jwt->header;
@@ -114,11 +116,13 @@ class JOSE_JWS extends JOSE_JWT {
     private function _verify($public_key_or_secret, $expected_alg = null) {
         $segments = explode('.', $this->raw);
         $signature_base_string = implode('.', array($segments[0], $segments[1]));
-        if (!$expected_alg) {
+        if (!$expected_alg && $this->header['alg'] != 'dir') {
             # NOTE: might better to warn here
             $expected_alg = $this->header['alg'];
         }
         switch ($expected_alg) {
+            case 'dir':
+                return $this->header['alg'] == $expected_alg;
             case 'HS256':
             case 'HS384':
             case 'HS512':

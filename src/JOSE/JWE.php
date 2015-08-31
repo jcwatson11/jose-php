@@ -4,6 +4,8 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Random;
 
+require_once dirname(__FILE__) . '/JWT.php';
+
 class JOSE_JWE extends JOSE_JWT {
     var $plain_text;
     var $cipher_text;
@@ -154,6 +156,10 @@ class JOSE_JWE extends JOSE_JWT {
 
     private function decryptContentEncryptionKey($public_or_private_key) {
         switch ($this->header['alg']) {
+            case 'dir':
+                $tmpkey = base64_decode($public_or_private_key);
+                $this->content_encryption_key = $tmpkey;
+                break;
             case 'RSA1_5':
                 $rsa = $this->rsa($public_or_private_key, RSA::ENCRYPTION_PKCS1);
                 $this->content_encryption_key = $rsa->decrypt($this->jwe_encrypted_key);
@@ -164,7 +170,6 @@ class JOSE_JWE extends JOSE_JWT {
                 break;
             case 'A128KW':
             case 'A256KW':
-            case 'dir':
             case 'ECDH-ES':
             case 'ECDH-ES+A128KW':
             case 'ECDH-ES+A256KW':
